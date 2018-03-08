@@ -1,0 +1,3 @@
+https://api.druid.datalegend.net/datasets/rlzijdeman/mediaSweet/services/mediaSweet/sparql
+
+# if this endpoint would not be working, please submit an issue (second to left tab on top).
