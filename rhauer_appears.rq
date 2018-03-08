@@ -1,0 +1,40 @@
+#+ summary: When did Rutger Hauer appear for the first time on Dutch Television? 
+#+ tags:
+#+      - mediasuite
+#+      - Rutger Hauer
+#+      - clariah Toogdag 2018
+#+      - example
+#+      - dbPedia
+
+# These are 'shortcuts' or 'prefixes' and avoid typing complete URI's
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX edm: <http://www.europeana.eu/schemas/edm/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX tl: <http://purl.org/NET/c4dm/timeline.owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+
+# Here we starting 'selecting' data that meet certain conditions ('where')
+SELECT * WHERE {
+  ?who edm:wasPresentAt ?what .
+  ?what skos:prefLabel ?programName .
+  ?what tl:start ?when .
+#  FILTER (   datatype(?when) = xsd:date ) # in order to get back full dates
+   FILTER (   datatype(?when) = xsd:gYear ) # in order to get back just the year
+  bind(xsd:integer(substr(str(?when),1,4)) as ?whenYear) # this is unfortunate step, bc of bad data
+  # thank you @Laurens.Rietveld
+  
+# So how old was Paul Verhoeven at his 'first' appearance?
+# This info is not in 'our' dataset, but we can get birthyear from DBpedia
+  SERVICE <https://dbpedia.org/sparql> { 
+    ?who dbo:birthDate ?birthdate . } #notice how DBpedia uses two output formats 
+  bind(xsd:integer(substr(str(?birthdate),1,4)) as ?birthYear)
+  
+#  bind( ?when-?birthdate as ?age )
+  bind( ?whenYear - ?birthYear as ?ageAtTime )
+#  FILTER (   datatype(?ageAtTime) = xsd:integer ) # in order to get only the valid DBpedia
+}
+ORDER BY ASC(?ageAtTime) # we order the results so that the first television appearance ends up on top
+
+LIMIT 100 # Any idea how to get the just the first result? (which would be the answer)?
